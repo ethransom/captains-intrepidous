@@ -7,6 +7,7 @@ Just a basic canvas element-->
   <head>
     <title> Captains Intrepidous </title>
     <meta charset="utf-8">
+    <link href="game.css" rel="stylesheet" type="text/css">
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <script type="text/javascript" src="main.js"></script>
@@ -14,9 +15,28 @@ Just a basic canvas element-->
   </head>
 
   <body>
-    Hello World! Here is a box:
-    <canvas id="myCanvas" width="500" height="500">
-      Canvas isn't supported...
-    </canvas>
+    <div id="game">
+      <div id="gameUI">
+        <div id="gameIntro">
+          <h1>Captains Interpidous!</h1>
+          <p> Click play to start </p>
+          <p> Move with arrow keys </p>
+          <p><input id="gameName" type = "text" name = "name"> </p>
+          <p><a id="gamePlay" class="button" href="">Play</a></p>
+        </div>
+        <div id="gameStats">
+          <p>Time: <span classs="gameScore"></span> seconds</p>
+          <p><a class = "gameReset" href="">Reset</a></p>
+        </div>
+        <div id="gameComplete">
+          <h1>Game over!</h1>
+          <p>You survived for <span class="gameScore"></span>seconds.</p>
+          <p><a class="gameReset button" href=""> PLay again</a></p>
+        </div>
+      </div>
+      <canvas id="myCanvas" width="800" height="600">
+        Canvas isn't supported...
+      </canvas>
+    </div>
   </body>
 </html>
