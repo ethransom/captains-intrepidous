@@ -8,19 +8,27 @@ $(document).ready(function() {
 
 
   var players = [];
+  var chats = [];
 
-  /*
   //websockets
-  var websocket = new WebSocket('ws://10.0.0.224:8080');
+  var websocket = new WebSocket('ws://intrepidous.hopto.org:8080');
 
   //right now the messages sent are just player objects
   websocket.onmessage = function(event) {
-    console.log("received message");
-    var obj = JSON.parse(event.data);
+    var obj;
+    try {
+      obj = JSON.parse(event.data);
+    } catch(e) {
+      //console.log("received non-JSON message: " + event.data);
+      var chat = {"message" : event.data, "time" : 200};
+      chats.push(chat);
+      return;
+    }
     var inserted = false;
+    console.log("Received update for: " + obj.name);
     // look through the players for stuff
     for (var i = 0; i < players.length; i++) {
-      if (players[i].name = obj.name) {
+      if (players[i].name == obj.name) {
         players[i] = obj;
         inserted = true;
         break;
@@ -30,7 +38,6 @@ $(document).ready(function() {
       players.push(obj);
     }
   }
-  */
 
   
   //canvas Dimensions
@@ -47,8 +54,8 @@ $(document).ready(function() {
   resizeCanvas();
 
   //map dimmensions
-  var mapWidth = canvasWidth;
-  var mapHeight = canvasHeight;
+  var mapWidth = 1000;
+  var mapHeight = 1000;
 
   // Game settings
   var playGame;
@@ -62,6 +69,7 @@ $(document).ready(function() {
   var uiName = $("#gameName");
   var uiReset = $(".gameReset");
   var uiScore = $(".gameScore");
+  var uiChat = $("chat");
 
   // player rocket
   var player;
@@ -74,6 +82,10 @@ $(document).ready(function() {
   var moveRight = false;
   var moveUp = false;
   var moveLeft = false;
+
+  var mouseX = 0;
+  var mouseY = 0;
+  var mouseDown = false;
 
 
   var Player = function(x, y) {
@@ -114,7 +126,13 @@ $(document).ready(function() {
         moveUp = true;
       } else if (keyCode == arrowLeft) {
         moveLeft = true;
+      } else if (keyCode == 13) { //enter
+        var toSend = player.name + ": " + chat.value;
+        websocket.send(toSend);
+        var newChat = {"message" : toSend, "time": 200};
+        chats.push(newChat);
       }
+
     });
 
     $(window).keyup(function(e) {
@@ -129,8 +147,56 @@ $(document).ready(function() {
 
     });
 
+    $(window).mousedown(function(e) {
+      var canvasOffset = canvas.offset();
+      mouseX = Math.floor(e.pageX-canvasOffset.left);
+      mouseY = Math.floor(e.pageY-canvasOffset.top);
+      mouseDown = true;
+    });
+    $(window).mousemove(function(e) {
+      var canvasOffset = canvas.offset();
+      mouseX = Math.floor(e.pageX-canvasOffset.left);
+      mouseY = Math.floor(e.pageY-canvasOffset.top);
+
+    });
+    $(window).mouseup(function(e) {
+      mouseDown = false;
+
+    });
+
+    document.addEventListener('touchmove', function(e) {
+      //e.preventDefault();
+      var touch = e.touches[0];
+      var canvasOffset = canvas.offset();
+      mouseX = Math.floor(touch.pageX-canvasOffset.left);
+      mouseY = Math.floor(touch.pageY-canvasOffset.top);
+    }, false);
+
+    document.addEventListener('touchstart', function(e) {
+      //e.preventDefault(); apparently this causes error?
+      var touch = e.touches[0];
+      var canvasOffset = canvas.offset();
+      mouseX = Math.floor(touch.pageX-canvasOffset.left);
+      mouseY = Math.floor(touch.pageY-canvasOffset.top);
+      mouseDown = true;
+    }, false);
+
+    document.addEventListener('touchend', function(e) {
+      //e.preventDefault();
+      mouseDown = false;
+    }, false);
+    document.addEventListener('touchcancel', function(e) {
+      //e.preventDefault();
+      mouseDown = false;
+    }, false);
+
+
+
+
+
+
     // sever
-    // websocket.send(JSON.stringify(player));
+    websocket.send(JSON.stringify(player));
     // Start the animation loop
     loop();
   };
@@ -151,6 +217,10 @@ $(document).ready(function() {
       uiComplete.hide();
       $(window).unbind("keyup");
       $(window).unbind("keydown");
+      $(window).unbind("mousedown");
+      $(window).unbind("mouseup");
+      $(window).unbind("mousemove");
+
       startGame();
     });
   };
@@ -159,6 +229,8 @@ $(document).ready(function() {
     //Draw the player
     context.save();
     context.translate(player.x, player.y);
+    context.font = "30px Arial";
+    context.fillText(player.name, -10, -30);
     context.rotate(player.angle);
     context.beginPath();
     context.moveTo(playerHalfHeight, 0);
@@ -219,18 +291,29 @@ $(document).ready(function() {
         player.flames = true;
         player.vX += Math.cos(player.angle) * player.moveSpeed;
         player.vY += Math.sin(player.angle) * player.moveSpeed;
+          
+      } else if (mouseDown) {
+        player.flames = true;
+        var dX = mouseX - player.x;
+        var dY = mouseY - player.y;
+        var magnitude = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
+        player.vX += dX/magnitude;
+        player.vY += dY/magnitude;
+        player.angle = Math.atan2(dY, dX);
+      }
+      if (player.flames) {
         if (player.flameLength == 20) {
           player.flameLength = 15;
         } else {
           player.flameLength = 20;
-        }  
+        }
       }
       updatePlayer(player);
 
       // server updates
-      /* if (moveRight || moveLeft || moveUp) {
+      if (moveRight || moveLeft || moveUp || mouseDown) {
         websocket.send(JSON.stringify(player));
-      } */
+      }
       
       context.fillStyle = "rgb(255,0,0)";
       for (var i = 0; i < players.length; i++) {
@@ -243,6 +326,16 @@ $(document).ready(function() {
  
       context.fillStyle = "rgb(0,0,255)";
       drawPlayer(player);
+
+      context.fillStyle = "rgba(255, 255, 255, 100)";
+      for (var  i =0; i < chats.length; i++) {
+        context.font = "30px Arial";
+        context.fillText(chats[i].message, 10, 40 * i + 150);
+        chats[i].time--;
+        if (chats[i].time == 0) {
+          chats.splice(i, 1);
+        }
+      }
 
      
       //start loop timer again in 33 milliseconds

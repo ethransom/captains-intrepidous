@@ -10,23 +10,23 @@ Just a basic canvas element-->
     <link href="game.css" rel="stylesheet" type="text/css">
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
     <script type="text/javascript" src="main.js"></script>
 
   </head>
 
   <body>
-    <div id="game">
-      <div id="gameUI">
+    <div id="game" data-role="page">
+      <div id="gameUI" role="main" class="ui-content">
         <div id="gameIntro">
           <h1>Captains Interpidous!</h1>
-          <p> Click play to start </p>
-          <p> Move with arrow keys </p>
-          <p><input id="gameName" type = "text" name = "name"> </p>
+          <p> Enter name and press play to start! </p>
+          <p> Move with arrow keys or mouse/touch </p>
+          <p><input id="gameName" type = "text" value = "player" name = "name"> </p>
           <p><a id="gamePlay" class="button" href="">Play</a></p>
         </div>
         <div id="gameStats">
-          <p>Time: <span classs="gameScore"></span> seconds</p>
-          <p><a class = "gameReset" href="">Reset</a></p>
+          <p><input id="chat" type = "text" value = "chat" name = "name"> </p>
         </div>
         <div id="gameComplete">
           <h1>Game over!</h1>
