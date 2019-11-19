@@ -1,8 +1,8 @@
-// 
+//
 // Main Javascipt File
 //
 
-$(document).ready(function() {
+$(document).ready(function () {
   var canvas = $("#myCanvas");
   var context = canvas.get(0).getContext("2d");
 
@@ -14,13 +14,13 @@ $(document).ready(function() {
   var websocket = new WebSocket('ws://intrepidous.hopto.org:8080');
 
   //right now the messages sent are just player objects
-  websocket.onmessage = function(event) {
+  websocket.onmessage = function (event) {
     var obj;
     try {
       obj = JSON.parse(event.data);
-    } catch(e) {
+    } catch (e) {
       //console.log("received non-JSON message: " + event.data);
-      var chat = {"message" : event.data, "time" : 200};
+      var chat = { "message": event.data, "time": 200 };
       chats.push(chat);
       return;
     }
@@ -39,7 +39,7 @@ $(document).ready(function() {
     }
   }
 
-  
+
   //canvas Dimensions
   var canvasWidth = canvas.width();
   var canvasHeight = canvas.height();
@@ -76,8 +76,8 @@ $(document).ready(function() {
 
   var playerHeight = 22;
   var playerWidth = 24;
-  var playerHalfHeight = playerHeight/2;
-  var playerHalfWidth = playerWidth/2;
+  var playerHalfHeight = playerHeight / 2;
+  var playerHalfWidth = playerWidth / 2;
 
   var moveRight = false;
   var moveUp = false;
@@ -88,7 +88,7 @@ $(document).ready(function() {
   var mouseDown = false;
 
 
-  var Player = function(x, y) {
+  var Player = function (x, y) {
     this.x = x;
     this.y = y;
     this.vX = 0;
@@ -103,7 +103,7 @@ $(document).ready(function() {
   var arrowUp = 38;
   var arrowRight = 39;
   var arrowLeft = 37;
-  
+
 
   //Reset and start the game
   function startGame() {
@@ -114,10 +114,10 @@ $(document).ready(function() {
     playGame = true;
 
     //set up player
-    player = new Player(150, canvasHeight/2);
+    player = new Player(150, canvasHeight / 2);
     player.name = uiName.get(0).value;
 
-    $(window).keydown(function(e) {
+    $(window).keydown(function (e) {
       var keyCode = e.keyCode;
 
       if (keyCode == arrowRight) {
@@ -129,13 +129,13 @@ $(document).ready(function() {
       } else if (keyCode == 13) { //enter
         var toSend = player.name + ": " + chat.value;
         websocket.send(toSend);
-        var newChat = {"message" : toSend, "time": 200};
+        var newChat = { "message": toSend, "time": 200 };
         chats.push(newChat);
       }
 
     });
 
-    $(window).keyup(function(e) {
+    $(window).keyup(function (e) {
       var keyCode = e.keyCode;
       if (keyCode == arrowRight) {
         moveRight = false;
@@ -147,45 +147,45 @@ $(document).ready(function() {
 
     });
 
-    $(window).mousedown(function(e) {
+    $(window).mousedown(function (e) {
       var canvasOffset = canvas.offset();
-      mouseX = Math.floor(e.pageX-canvasOffset.left);
-      mouseY = Math.floor(e.pageY-canvasOffset.top);
+      mouseX = Math.floor(e.pageX - canvasOffset.left);
+      mouseY = Math.floor(e.pageY - canvasOffset.top);
       mouseDown = true;
     });
-    $(window).mousemove(function(e) {
+    $(window).mousemove(function (e) {
       var canvasOffset = canvas.offset();
-      mouseX = Math.floor(e.pageX-canvasOffset.left);
-      mouseY = Math.floor(e.pageY-canvasOffset.top);
+      mouseX = Math.floor(e.pageX - canvasOffset.left);
+      mouseY = Math.floor(e.pageY - canvasOffset.top);
 
     });
-    $(window).mouseup(function(e) {
+    $(window).mouseup(function (e) {
       mouseDown = false;
 
     });
 
-    document.addEventListener('touchmove', function(e) {
+    document.addEventListener('touchmove', function (e) {
       //e.preventDefault();
       var touch = e.touches[0];
       var canvasOffset = canvas.offset();
-      mouseX = Math.floor(touch.pageX-canvasOffset.left);
-      mouseY = Math.floor(touch.pageY-canvasOffset.top);
+      mouseX = Math.floor(touch.pageX - canvasOffset.left);
+      mouseY = Math.floor(touch.pageY - canvasOffset.top);
     }, false);
 
-    document.addEventListener('touchstart', function(e) {
+    document.addEventListener('touchstart', function (e) {
       //e.preventDefault(); apparently this causes error?
       var touch = e.touches[0];
       var canvasOffset = canvas.offset();
-      mouseX = Math.floor(touch.pageX-canvasOffset.left);
-      mouseY = Math.floor(touch.pageY-canvasOffset.top);
+      mouseX = Math.floor(touch.pageX - canvasOffset.left);
+      mouseY = Math.floor(touch.pageY - canvasOffset.top);
       mouseDown = true;
     }, false);
 
-    document.addEventListener('touchend', function(e) {
+    document.addEventListener('touchend', function (e) {
       //e.preventDefault();
       mouseDown = false;
     }, false);
-    document.addEventListener('touchcancel', function(e) {
+    document.addEventListener('touchcancel', function (e) {
       //e.preventDefault();
       mouseDown = false;
     }, false);
@@ -206,13 +206,13 @@ $(document).ready(function() {
     uiStats.hide();
     uiComplete.hide();
 
-    uiPlay.click(function(e) {
+    uiPlay.click(function (e) {
       e.preventDefault();
       uiIntro.hide();
       startGame();
     });
 
-    uiReset.click(function(e) {
+    uiReset.click(function (e) {
       e.preventDefault();
       uiComplete.hide();
       $(window).unbind("keyup");
@@ -243,9 +243,9 @@ $(document).ready(function() {
       context.translate(-playerHalfHeight, 0);
       context.fillStyle = "orange";
       context.beginPath();
-      context.moveTo(0,-5);
+      context.moveTo(0, -5);
       context.lineTo(-player.flameLength, 0);
-      context.lineTo(0,5);
+      context.lineTo(0, 5);
       context.closePath();
       context.fill();
       player.flames = false;
@@ -273,7 +273,7 @@ $(document).ready(function() {
       player.vY *= -0.3;
     }
   }
- 
+
 
   // main game loop
   function loop() {
@@ -281,7 +281,7 @@ $(document).ready(function() {
     context.clearRect(0, 0, canvasWidth, canvasHeight);
 
     if (playGame) {
-      
+
       //movement update
       if (moveRight) {
         player.angle += .3;
@@ -291,14 +291,14 @@ $(document).ready(function() {
         player.flames = true;
         player.vX += Math.cos(player.angle) * player.moveSpeed;
         player.vY += Math.sin(player.angle) * player.moveSpeed;
-          
+
       } else if (mouseDown) {
         player.flames = true;
         var dX = mouseX - player.x;
         var dY = mouseY - player.y;
         var magnitude = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
-        player.vX += dX/magnitude;
-        player.vY += dY/magnitude;
+        player.vX += dX / magnitude;
+        player.vY += dY / magnitude;
         player.angle = Math.atan2(dY, dX);
       }
       if (player.flames) {
@@ -314,7 +314,7 @@ $(document).ready(function() {
       if (moveRight || moveLeft || moveUp || mouseDown) {
         websocket.send(JSON.stringify(player));
       }
-      
+
       context.fillStyle = "rgb(255,0,0)";
       for (var i = 0; i < players.length; i++) {
         if (players[i].name == player.name) {
@@ -323,12 +323,12 @@ $(document).ready(function() {
         updatePlayer(players[i]);
         drawPlayer(players[i]);
       }
- 
+
       context.fillStyle = "rgb(0,0,255)";
       drawPlayer(player);
 
       context.fillStyle = "rgba(255, 255, 255, 100)";
-      for (var  i =0; i < chats.length; i++) {
+      for (var i = 0; i < chats.length; i++) {
         context.font = "30px Arial";
         context.fillText(chats[i].message, 10, 40 * i + 150);
         chats[i].time--;
@@ -337,7 +337,7 @@ $(document).ready(function() {
         }
       }
 
-     
+
       //start loop timer again in 33 milliseconds
       setTimeout(loop, 33);
     }
