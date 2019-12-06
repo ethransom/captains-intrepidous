@@ -11,7 +11,7 @@ $(document).ready(function () {
   var chats = [];
 
   //websockets
-  var websocket = new WebSocket('ws://intrepidous.hopto.org:8080');
+  var websocket = new WebSocket('ws://localhost:8080/echo');
 
   //right now the messages sent are just player objects
   websocket.onmessage = function (event) {
