@@ -129,7 +129,7 @@ $(document).ready(function () {
       } else if (keyCode == 13) { //enter
         var toSend = player.name + ": " + chat.value;
         websocket.send(toSend);
-        var newChat = { "message": toSend, "time": 200 };
+        var newChat = { "message": toSend, "time": 201 };
         chats.push(newChat);
       }
 
@@ -253,6 +253,29 @@ $(document).ready(function () {
     context.restore();
   }
   function updatePlayer(player) {
+    // gravity
+    // F = G * m1 * m2 / r^2 = ma
+    // a = G * m2 / r^2
+    var planetX = 500;
+    var planetY = 500;
+    var planetMass = 400
+    var G = 1 //6.674E-11
+    var rX = player.x - planetX
+    var rY = player.y - planetY
+
+    var r = Math.sqrt(Math.pow(rX, 2) + Math.pow(rY, 2))
+
+    var angle = Math.atan2(rY, rX)
+
+
+    var a = -planetMass / Math.pow(r, 2)
+    
+    var aX = a * Math.cos(angle)
+    var aY = a * Math.sin(angle)
+
+    player.vX += aX
+    player.vY += aY
+
     // velocity update
     player.x += player.vX;
     player.y += player.vY;
@@ -297,8 +320,8 @@ $(document).ready(function () {
         var dX = mouseX - player.x;
         var dY = mouseY - player.y;
         var magnitude = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
-        player.vX += dX / magnitude;
-        player.vY += dY / magnitude;
+        player.vX += dX / (magnitude * 2);
+        player.vY += dY / (magnitude * 2);
         player.angle = Math.atan2(dY, dX);
       }
       if (player.flames) {
@@ -315,6 +338,11 @@ $(document).ready(function () {
         websocket.send(JSON.stringify(player));
       }
 
+      // draw planet
+      drawPlanet(context);
+      
+
+      // draw other players
       context.fillStyle = "rgb(255,0,0)";
       for (var i = 0; i < players.length; i++) {
         if (players[i].name == player.name) {
@@ -324,9 +352,12 @@ $(document).ready(function () {
         drawPlayer(players[i]);
       }
 
+      // draw our player
       context.fillStyle = "rgb(0,0,255)";
       drawPlayer(player);
 
+
+      // draw chats
       context.fillStyle = "rgba(255, 255, 255, 100)";
       for (var i = 0; i < chats.length; i++) {
         context.font = "30px Arial";
@@ -347,3 +378,15 @@ $(document).ready(function () {
 
   init();
 });
+
+function drawPlanet(context) {
+  context.fillStyle = "rgb(0,255,0)";
+  context.save();
+  context.translate(500, 500);
+  context.beginPath();
+  context.arc(0, 0, 50, 0, 2 * Math.PI);
+  context.closePath();
+  context.fill();
+  context.restore();
+}
+
