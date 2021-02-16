@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -18,12 +20,14 @@ type Game struct {
 }
 
 func (game *Game) addClient(conn *websocket.Conn) {
+	fmt.Println("Added client")
 	game.mu.Lock()
 	defer game.mu.Unlock()
 	game.clients = append(game.clients, conn)
 }
 
 func (game *Game) removeClient(conn *websocket.Conn) {
+	fmt.Println("Removed client")
 	game.mu.Lock()
 	defer game.mu.Unlock()
 	for i := 0; i < len(game.clients); i++ {
@@ -47,7 +51,7 @@ func (game *Game) broadcast(sender *websocket.Conn, mt int, message []byte) {
 			err := game.clients[i].WriteMessage(mt, message)
 			if err != nil {
 				log.Println("error on write:", err)
-				game.clients[i].Close() // let the reader thread choke on this and clean up
+				_ = game.clients[i].Close() // let the reader thread choke on this and clean up
 			}
 		}
 	}
@@ -62,7 +66,7 @@ func makeEchoHandler(game *Game) func(http.ResponseWriter, *http.Request) {
 			log.Print("upgrade:", err)
 			return
 		}
-		defer c.Close()
+		defer Close(c)
 		game.addClient(c)
 		defer game.removeClient(c)
 		for {
@@ -77,12 +81,21 @@ func makeEchoHandler(game *Game) func(http.ResponseWriter, *http.Request) {
 	}
 }
 
+// explicit error handling function to avoid warnings
+// inspired by: https://blevesearch.com/news/Deferred-Cleanup,-Checking-Errors,-and-Potential-Problems/
+func Close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
 	game := Game{}
 	http.HandleFunc("/echo", makeEchoHandler(&game))
-	fs := http.FileServer(http.Dir("static"))
+	fs := http.FileServer(http.Dir("../static"))
 	http.Handle("/", fs)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }

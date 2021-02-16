@@ -1,2 +1,2 @@
 captains-intrepidous
-server/target
+*.wasm

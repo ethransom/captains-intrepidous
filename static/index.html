@@ -3,7 +3,7 @@ Just a basic canvas element-->
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <title> Captains Intrepidous </title>
     <meta charset="utf-8">
@@ -22,11 +22,11 @@ Just a basic canvas element-->
           <h1>Captains Intrepidous!</h1>
           <p> Enter name and press play to start! </p>
           <p> Move with arrow keys or mouse/touch </p>
-          <p><input id="gameName" type = "text" value = "player" name = "name"> </p>
+          <p><input id="gameName" type = "text" value = "player" name = "name"><label for="gameName"> </label></p>
           <p><a id="gamePlay" class="button" href="">Play</a></p>
         </div>
         <div id="gameStats">
-          <p><input id="chat" type = "text" value = "chat" name = "name"> </p>
+          <p><label for="chat"></label><input id="chat" type = "text" value = "chat" name = "name"> </p>
         </div>
         <div id="gameComplete">
           <h1>Game over!</h1>
@@ -39,4 +39,11 @@ Just a basic canvas element-->
       </canvas>
     </div>
   </body>
+  <script src="wasm_exec.js"></script>
+  <script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+      go.run(result.instance);
+    });
+  </script>
 </html>
