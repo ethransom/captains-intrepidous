@@ -8,11 +8,13 @@ Just a basic canvas element-->
     <title> Captains Intrepidous </title>
     <meta charset="utf-8">
     <link href="game.css" rel="stylesheet" type="text/css">
-
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-
-    <script type="text/javascript" src="main.js"></script>
-
+    <script src="wasm_exec.js"></script>
+    <script>
+      const go = new Go();
+      WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+        go.run(result.instance);
+      });
+    </script>
   </head>
 
   <body>
@@ -39,11 +41,4 @@ Just a basic canvas element-->
       </canvas>
     </div>
   </body>
-  <script src="wasm_exec.js"></script>
-  <script>
-    const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
-      go.run(result.instance);
-    });
-  </script>
 </html>

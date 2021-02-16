@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -20,14 +19,14 @@ type Game struct {
 }
 
 func (game *Game) addClient(conn *websocket.Conn) {
-	fmt.Println("Added client")
+	log.Println("Added client")
 	game.mu.Lock()
 	defer game.mu.Unlock()
 	game.clients = append(game.clients, conn)
 }
 
 func (game *Game) removeClient(conn *websocket.Conn) {
-	fmt.Println("Removed client")
+	log.Println("Removed client")
 	game.mu.Lock()
 	defer game.mu.Unlock()
 	for i := 0; i < len(game.clients); i++ {
