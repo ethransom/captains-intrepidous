@@ -18,8 +18,11 @@ jobs:
       with:
         go-version: 1.15
 
-    - name: Build
-      run: go build -v ./...
+    - name: Build Server
+      run: cd server && go build
+
+#    - name: Build Client
+#      run: cd static && GOOS=js;GOARCH=wasm go build -o main.wasm
 
     - name: Test
-      run: go test -v ./...
+      run: cd server && go test
