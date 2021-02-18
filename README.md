@@ -1,6 +1,8 @@
 
 # Captains Intrepidous
 
+![build status](https://img.shields.io/github/workflow/status/ethransom/captains-intrepidous/Go)
+
 [comment]: <> (## Try it maybe live at intrepidous.hopto.org!)
 
 ## building
